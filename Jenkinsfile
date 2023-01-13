@@ -10,7 +10,7 @@ pipeline{
     stages{
         stage("Code Checkout"){
             steps{
-                echo "========executing Code Checkout========"
+                echo "========executing Code Checkout from feature branch========"
                 checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[credentialsId: 'myGitCredentials', url: 'https://github.com/gthborg/hello-world-war.git']])
             }
             post{
