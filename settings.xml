@@ -12,18 +12,18 @@
     <server>
       <id>mymaven-releases</id>
       <username>admin</username>
-      <password>Passw0rd</password>
+      <password>adminpassword</password>
     </server>
   </servers>
 
-  <!--mirrors>
+  <mirrors>
     <mirror>
       <id>maven-central</id>
       <name>maven-central</name>
-      <url>http://44.192.39.202:8081/repository/maven-central/</url>
+      <url>http://172.31.17.212:8081/repository/mymaven-central/</url>
       <mirrorOf>*</mirrorOf>
     </mirror>
-</mirrors -->
+</mirrors>
 
 
 </settings>
