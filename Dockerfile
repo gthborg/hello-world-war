@@ -15,7 +15,7 @@ RUN yum install java-11-openjdk -y
 RUN java -version
 
 WORKDIR /opt/tomcat/webapps
-
+COPY target/*.war /opt/tomcat/webapps
 
 EXPOSE 8080
 
