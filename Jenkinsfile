@@ -84,7 +84,7 @@ pipeline{
                 sh "docker tag helloworld:1.0.0 $dockerhub_user/helloworld:1.0.0"
                 sh "docker push $dockerhub_user/helloworld:1.0.0"
                 }
-                   
+                    // some block
 }
             
             post{
