@@ -1,9 +1,13 @@
 pipeline{
-    agent any
+   agent {
+  label 'slave-machine'
+}
     options {
   buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '5')
 }
-
+   environment {
+  dockerhub = "credentials('dockerhub')"
+}
     tools {
         maven 'Maven'
     }
@@ -11,7 +15,7 @@ pipeline{
         stage("Code Checkout"){
             steps{
                 echo "========executing Code Checkout========"
-                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[credentialsId: 'myGitCredentials', url: 'https://github.com/gthborg/hello-world-war.git']])
+                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[credentialsId: 'mygitcreds', url: 'https://github.com/gthborg/hello-world-war.git']])
             }
             post{
                 success{
@@ -22,7 +26,8 @@ pipeline{
                 }
             }
         }
-        stage("Execute Shell"){
+    
+     stage("Execute Shell"){
             steps{
                 echo "========execute Shell========"
                 sh 'echo "HELLO world"'                
@@ -36,7 +41,7 @@ pipeline{
                 }
             }
         }
-        stage("Build application"){
+    stage("Build application"){
             steps{
                 echo "========Build========"
                 sh 'mvn clean install'                
@@ -50,41 +55,49 @@ pipeline{
                 }
             }
         }
-        /*stage("Upload artifact "){
+        stage("docker build"){
             steps{
-                echo "========Build========"
-                sh 'mvn -s settings.xml deploy'                
+                echo "====++++executing docker build++++===="
+                sh "docker build -t helloworld:1.0.0 ."
             }
             post{
+                always{
+                    echo "====++++always++++===="
+                }
                 success{
-                    echo "========Build completed========"
+                    echo "====++++docker build executed successfully++++===="
                 }
                 failure{
-                    echo "========Build failed========"
+                    echo "====++++docker build execution failed++++===="
                 }
+        
             }
-        }*/
-        stage("Execute SonarScan"){
-            steps {
-                script { 
-                    //def scannerHome = tool name: 'mySonar';
-                    withSonarQubeEnv("mySonar") {
-                        sh "${tool("mySonarScanner")}/bin/sonar-scanner \
-                        -Dsonar.projectKey=hello-world-war \
-                        -Dsonar.sources=. \
-                        -Dsonar.java.binaries=target \
-                        -Dsonar.host.url=http://172.31.6.11:9000 \
-                        -Dsonar.login=sqa_c2e90fe5764b420ac7ce57f08193b6cfe57dcb73"
-                    }
-               }
-            }
+        }
+        stage("docker push"){
+            
+            steps{
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'dockerhub_pwd', usernameVariable: 'dockerhub_user')]) {
+
+                echo "====++++executing docker build++++===="
+                //echo '$dockerhub_user'
+                sh "echo $dockerhub_pwd | docker login -u $dockerhub_user --password-stdin"
+                sh "docker tag helloworld:1.0.0 $dockerhub_user/helloworld:1.0.0"
+                sh "docker push $dockerhub_user/helloworld:1.0.0"
+                }
+                   
+}
+            
             post{
+                always{
+                    echo "====++++always++++===="
+                }
                 success{
-                    echo "========Build completed========"
+                    echo "====++++docker build executed successfully++++===="
                 }
                 failure{
-                    echo "========Build failed========"
+                    echo "====++++docker build execution failed++++===="
                 }
+        
             }
         }
     }
