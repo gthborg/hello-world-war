@@ -7,16 +7,13 @@ WORKDIR /opt/tomcat
 RUN curl -O https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.71/bin/apache-tomcat-9.0.71.tar.gz
 RUN tar xvfz apache*.tar.gz
 RUN ls /opt/tomcat
-
-RUN cd /etc/yum.repos.d/
-RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
-RUN sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
-RUN yum install java-11-openjdk -y
+RUN mv apache-tomcat-9.0.71 /opt/tomcat/.
+RUN yum -y install 
 RUN java -version
 
 WORKDIR /opt/tomcat/webapps
-COPY target/*.war /opt/tomcat/webapps
+
 
 EXPOSE 8080
 
-CMD ["/opt/tomcat/apache-tomcat-9.0.71/catalina.sh", "run"]
+CMD ["/opt/tomcat/bin/catalina.sh", "run"]
